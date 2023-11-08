@@ -1,3 +1,4 @@
+
 //Librerias necesarias para rmi 
 import java.io.*;
 /*Excepciones para NotSerializableException
@@ -10,11 +11,13 @@ import java.rmi.server.UnicastRemoteObject;
 //Clase IOArchivo que implementa la interfaz FileInterface
 public class IOArchivo extends UnicastRemoteObject implements FileInterface {
     private String nombreArchivo;
+
     // Constructor con parametro para representar el nombre del archivo en el que
     // operar
     public IOArchivo(String nombreArchivo) throws RemoteException {
         this.nombreArchivo = nombreArchivo;
     }
+
     // Metodo para contarlineas del archivo dado el nombre del archivo String
     public int contarLineas(String nombreArchivo) throws RemoteException {
         int contador = 0;
@@ -59,22 +62,26 @@ public class IOArchivo extends UnicastRemoteObject implements FileInterface {
     }
 
     // Metodo que escriba el contedio del archivo a OS
-    //public void escribe(OutputStream os) throws IOException
-    public void escribe(OutputStream  os) throws IOException{
-        try (InputStream is = new FileInputStream(nombreArchivo)) {
-            byte[] buffer = new byte[1024];
-            int bytesRead;
-            while ((bytesRead = is.read(buffer)) != -1) {
-                os.write(buffer, 0, bytesRead);
-            }
-        } catch (IOException e) {
-            System.err.println("Error al escribir el archivo en el OutputStream: " + e.getMessage());
-            throw new RemoteException("Error al escribir el archivo en el OutputStream: " + e.getMessage());
-        }
-    }
-
-    //Segunda forma para escribe
-    public void escribe(String nombreArchivoDestino) throws IOException{
+    // public void escribe(OutputStream os) throws IOException
+    /*
+     * public void escribe(OutputStream os) throws IOException{
+     * try (InputStream is = new FileInputStream(nombreArchivo)) {
+     * byte[] buffer = new byte[1024];
+     * int bytesRead;
+     * while ((bytesRead = is.read(buffer)) != -1) {
+     * //java.io.NOTSerializableException
+     * os.write(buffer, 0, bytesRead);
+     * }
+     * } catch (IOException e) {
+     * System.err.println("Error al escribir el archivo en el OutputStream: " +
+     * e.getMessage());
+     * throw new RemoteException("Error al escribir el archivo en el OutputStream: "
+     * + e.getMessage());
+     * }
+     * }
+     */
+    // Segunda forma para escribe
+    public void escribe(String nombreArchivoDestino) throws IOException {
         try (InputStream is = new FileInputStream(nombreArchivo);
                 OutputStream os = new FileOutputStream(nombreArchivoDestino)) {
             byte[] buffer = new byte[1024];
@@ -124,10 +131,11 @@ public class IOArchivo extends UnicastRemoteObject implements FileInterface {
     // 'nombrearchivodestino'
     public void copiar(String nombreArchivoDestino) throws RemoteException {
         try (InputStream is = new FileInputStream(nombreArchivo);
-                OutputStream os = new FileOutputStream(nombreArchivoDestino , true)) {
+                OutputStream os = new FileOutputStream(nombreArchivoDestino, true)) {
             byte[] buffer = new byte[1024];
             int bytesRead;
-            //Si el archivo destino ya tiene contenido, se añade, y se diferencia con un salto de linea
+            // Si el archivo destino ya tiene contenido, se añade, y se diferencia con un
+            // salto de linea
             if (new File(nombreArchivoDestino).length() > 0) {
                 os.write('\n');
             }
@@ -142,13 +150,13 @@ public class IOArchivo extends UnicastRemoteObject implements FileInterface {
 
     // Metodo para renombrar el archivo
     public void renombrar(String nuevoNombre) throws RemoteException {
-        String temp = nombreArchivo; //Variable temporal para guardar el nombre del archivo original antes de renombrarlo
+        // renombrarlo
         File archivo = new File(nombreArchivo);
         File archivo2 = new File(nuevoNombre);//
         if (archivo.renameTo(archivo2)) {
-            System.out.println("Archivo renombrado a:"+nuevoNombre);//
-            //Actualizamos el nombre para que tenga referencia
-            this.nombreArchivo = temp;
+            System.out.println("Archivo renombrado a:" + nuevoNombre);//
+            // Actualizamos el nombre para que tenga referencia
+            this.nombreArchivo = nuevoNombre;
         } else {
             System.out.println("Error al renombrar el archivo");
         }
